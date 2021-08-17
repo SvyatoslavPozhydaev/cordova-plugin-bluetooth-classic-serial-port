@@ -123,7 +123,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
         } else if (action.equals(DISCONNECT)) {
 
-            disconnect(callbackContext);
+            disconnect(args, callbackContext);
 
 //            connectCallback = null;
 //            bluetoothClassicSerialService.stop();
@@ -590,22 +590,30 @@ public class BluetoothClassicSerial extends CordovaPlugin {
         }
     }
 
-    private void disconnect(CallbackContext callbackContext) {
+    private void disconnect(CordovaArgs args, CallbackContext callbackContext) {
 
         InterfaceContext ic;
 
-        for(Map.Entry<String,InterfaceContext> entry: connections.entrySet()) {
+        if (args != null && args.getString(0) != null) {
 
-            ic = entry.getValue();
-
-            if (ic.bluetoothClassicSerialService != null) {
+            String macAddress = args.getString(0);
+            ic = connections.get(macAddress);
+            if (ic != null && ic.bluetoothClassicSerialService != null) {
                 ic.bluetoothClassicSerialService.stop();
             }
 
+        } else {
+            Iterator connectionsIterators = connections.entrySet().iterator();
+
+            while (connectionsIterators.hasNext()) {
+                InterfaceContext connectionsIterator = connectionsIterators.next().getValue();
+                if (connectionsIterator.bluetoothClassicSerialService != null) {
+                    connectionsIterator.bluetoothClassicSerialService.stop();
+                }
+            }
         }
 
         callbackContext.success();
-
     }
 
     private void destroy() {

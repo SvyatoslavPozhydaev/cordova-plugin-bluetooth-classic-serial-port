@@ -22,8 +22,8 @@ module.exports = {
         cordova.exec(success, failure, "BluetoothClassicSerial", "connectInsecure", [deviceId, interfaceArray]);
     },
 
-    disconnect: function (success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "disconnect", []);
+    disconnect: function (interfaceId, success, failure) {
+        cordova.exec(success, failure, "BluetoothClassicSerial", "disconnect", [interfaceId]);
     },
 
     // list bound devices
