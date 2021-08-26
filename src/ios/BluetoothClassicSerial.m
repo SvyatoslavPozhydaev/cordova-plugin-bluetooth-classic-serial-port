@@ -310,19 +310,18 @@
                 || [error code] == EABluetoothAccessoryPickerResultFailed
             )
            ) {
-            CDVPluginResult *pluginResult = nil;
+
             NSString *errorMessage;
             if ([error code] == EABluetoothAccessoryPickerResultCancelled) {
                 errorMessage = @"Cancelled";
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@[]];
             } else if ([error code] == EABluetoothAccessoryPickerResultNotFound) {
                 errorMessage = @"Device not found";
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
             } else {
                 errorMessage = @"Device selection failed";
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
             }
 
+            CDVPluginResult *pluginResult = nil;
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
         } else {
