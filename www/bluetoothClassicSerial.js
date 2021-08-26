@@ -73,7 +73,13 @@ module.exports = {
 
     // calls the success callback when new data is available
     subscribe: function (interfaceId, delimiter, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "subscribe", [interfaceId, delimiter]);
+        var interfaceIdArg;
+        if (typeof interfaceId instanceof Array) {
+            interfaceIdArg = interfaceId[0];
+        } else {
+            interfaceIdArg = '' + interfaceId;
+        }
+        cordova.exec(success, failure, "BluetoothClassicSerial", "subscribe", [interfaceIdArg, delimiter]);
     },
 
     // removes data subscription
@@ -83,7 +89,12 @@ module.exports = {
 
     // calls the success callback when new data is available with an ArrayBuffer
     subscribeRawData: function (interfaceId,success, failure) {
-
+        var interfaceIdArg;
+        if (typeof interfaceId instanceof Array) {
+            interfaceIdArg = interfaceId[0];
+        } else {
+            interfaceIdArg = '' + interfaceId;
+        }
         successWrapper = function(data) {
 
           // data = (typeof data === 'object') ? data : {};
@@ -95,7 +106,7 @@ module.exports = {
           success(data);
         };
 
-        cordova.exec(successWrapper, failure, "BluetoothClassicSerial", "subscribeRaw", [interfaceId]);
+        cordova.exec(successWrapper, failure, "BluetoothClassicSerial", "subscribeRaw", [interfaceIdArg]);
     },
 
     // removes data subscription
