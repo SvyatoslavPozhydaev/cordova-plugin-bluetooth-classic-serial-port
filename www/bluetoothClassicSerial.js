@@ -73,28 +73,19 @@ module.exports = {
 
     // calls the success callback when new data is available
     subscribe: function (interfaceId, delimiter, success, failure) {
-        var interfaceIdArg;
-        if (typeof interfaceId instanceof Array) {
-            interfaceIdArg = interfaceId[0];
-        } else {
-            interfaceIdArg = '' + interfaceId;
-        }
+        var interfaceIdArg = interfaceArrayToInterfaceId(interfaceId);
         cordova.exec(success, failure, "BluetoothClassicSerial", "subscribe", [interfaceIdArg, delimiter]);
     },
 
     // removes data subscription
     unsubscribe: function (interfaceId, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "unsubscribe", [interfaceId]);
+        var interfaceIdArg = interfaceArrayToInterfaceId(interfaceId);
+        cordova.exec(success, failure, "BluetoothClassicSerial", "unsubscribe", [interfaceIdArg]);
     },
 
     // calls the success callback when new data is available with an ArrayBuffer
     subscribeRawData: function (interfaceId,success, failure) {
-        var interfaceIdArg;
-        if (typeof interfaceId instanceof Array) {
-            interfaceIdArg = interfaceId[0];
-        } else {
-            interfaceIdArg = '' + interfaceId;
-        }
+        var interfaceIdArg = interfaceArrayToInterfaceId(interfaceId);
         successWrapper = function(data) {
 
           // data = (typeof data === 'object') ? data : {};
@@ -111,7 +102,8 @@ module.exports = {
 
     // removes data subscription
     unsubscribeRawData: function (interfaceId, success, failure) {
-        cordova.exec(success, failure, "BluetoothClassicSerial", "unsubscribeRaw", [interfaceId]);
+        var interfaceIdArg = interfaceArrayToInterfaceId(interfaceId);
+        cordova.exec(success, failure, "BluetoothClassicSerial", "unsubscribeRaw", [interfaceIdArg]);
     },
 
     // clears the data buffer
@@ -151,3 +143,13 @@ var stringToArrayBuffer = function(str) {
     }
     return ret.buffer;
 };
+
+var interfaceArrayToInterfaceId = function (interfaceId){
+    var interfaceIdArg;
+    if (typeof interfaceId instanceof Array) {
+        interfaceIdArg = interfaceId[0];
+    } else {
+        interfaceIdArg = '' + interfaceId;
+    }
+    return interfaceIdArg
+}
