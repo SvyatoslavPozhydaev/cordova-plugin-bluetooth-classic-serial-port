@@ -603,7 +603,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
             }
 
         } else {
-            Iterator connectionsIterators = connections.entrySet().iterator();
+            Iterator<Map.Entry<String, InterfaceContext>> connectionsIterators = connections.entrySet().iterator();
 
             while (connectionsIterators.hasNext()) {
                 InterfaceContext connectionsIterator = connectionsIterators.next().getValue();
