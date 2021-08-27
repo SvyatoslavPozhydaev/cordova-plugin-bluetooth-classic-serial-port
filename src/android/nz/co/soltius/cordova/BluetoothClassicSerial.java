@@ -590,7 +590,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
         }
     }
 
-    private void disconnect(CordovaArgs args, CallbackContext callbackContext) {
+    private void disconnect(CordovaArgs args, CallbackContext callbackContext) throws JSONException {
 
         InterfaceContext ic;
 
