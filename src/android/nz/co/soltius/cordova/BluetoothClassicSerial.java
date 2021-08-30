@@ -240,7 +240,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
             } else if (action.equals(IS_CONNECTED)) {
 
-                isConnected(callbackContext);
+                isConnected(args, callbackContext);
 
             } else if (action.equals(CLEAR)) {
 
@@ -710,27 +710,35 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
     }
 
-    private void isConnected(CallbackContext callbackContext) {
+    private void isConnected(CordovaArgs args, CallbackContext callbackContext) throws JSONException {
+
+        String macAddress = args.getString(0);
 
         InterfaceContext ic;
-        boolean successful;
+        boolean successful = false;
 
-        successful = true;
+        ic = connections.get(macAddress);
 
-        for(Map.Entry<String,InterfaceContext> entry: connections.entrySet()) {
-
-            ic = entry.getValue();
-
-            if (ic.bluetoothClassicSerialService.getState() != BluetoothClassicSerialService.STATE_CONNECTED) {
-                successful = false;
+        if (ic != null && ic.bluetoothClassicSerialService != null) {
+            if(ic.bluetoothClassicSerialService.getState() == BluetoothClassicSerialService.STATE_CONNECTED){
+                successful = true;
             }
-
         }
 
-        if (successful == true) {
+//        for(Map.Entry<String,InterfaceContext> entry: connections.entrySet()) {
+//
+//            ic = entry.getValue();
+//
+//            if (ic.bluetoothClassicSerialService.getState() != BluetoothClassicSerialService.STATE_CONNECTED) {
+//                successful = false;
+//            }
+//
+//        }
+
+        if (successful) {
             callbackContext.success();
         } else {
-            callbackContext.error("Not connected.");
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, successful));
         }
     }
 
