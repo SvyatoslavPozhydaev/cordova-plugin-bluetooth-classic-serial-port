@@ -57,7 +57,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
     private static final String CLEAR_DEVICE_DISCOVERED_LISTENER = "clearDeviceDiscoveredListener";
 
     // callbacks
-    private CallbackContext connectCallback;
+    // private CallbackContext connectCallback;
     // private CallbackContext dataAvailableCallback;
     // private CallbackContext rawDataAvailableCallback;
     private CallbackContext enableBluetoothCallback;
@@ -77,6 +77,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
     public static final int MESSAGE_READ_RAW = 6;
+    public static final int MESSAGE_FAILED = 7;
 
     // Key names received from the BluetoothChatService Handler
     public static final String DEVICE_NAME = "device_name";
@@ -161,7 +162,6 @@ public class BluetoothClassicSerial extends CordovaPlugin {
             } else if (action.equals(READ)) {
 
                 String macAddress = args.getString(0);
-                String delim = args.getString(1);
                 InterfaceContext ic = getInterfaceContext(macAddress);
                 String data = "";
 
@@ -232,11 +232,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
             } else if (action.equals(IS_ENABLED)) {
 
-                if (bluetoothAdapter.isEnabled()) {
-                    callbackContext.success();
-                } else {
-                    callbackContext.error("Bluetooth is disabled.");
-                }
+                isEnabled(callbackContext);
 
             } else if (action.equals(IS_CONNECTED)) {
 
@@ -333,6 +329,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
         public String delimiter;
         public String macAddress;
         public CallbackContext dataAvailableCallback;
+        public CallbackContext connectCallback;
         public CallbackContext rawDataAvailableCallback;
         private boolean mConnected = false;
 
@@ -418,7 +415,19 @@ public class BluetoothClassicSerial extends CordovaPlugin {
                             notifyConnectionLost(message);
                         }
                         break;
+                    case MESSAGE_FAILED:
+                        String messageF = msg.getData().getString(TOAST);
+                        if (connectCallback != null) {
+                            if (mConnected == true) {
+                                mConnected = false;
+                            }
+                            PluginResult result = new PluginResult(PluginResult.Status.ERROR, messageF);
+                            connectCallback.error(messageF);
+                            connectCallback = null;
+                        }
+                        break;
                     }
+
                 }
             };
 
@@ -485,8 +494,31 @@ public class BluetoothClassicSerial extends CordovaPlugin {
             }
         }
 
+        private void notifyConnectionLost(String error) {
+            if (connectCallback != null) {
+                connectCallback.error(error);
+                connectCallback = null;
+            }
+        }
+
+        private void notifyConnectionSuccess() {
+            if (connectCallback != null) {
+                PluginResult result = new PluginResult(PluginResult.Status.OK);
+                result.setKeepCallback(true);
+                connectCallback.sendPluginResult(result);
+            }
+        }
+
     }  //End of Interface Context Class
 
+
+    private void isEnabled(CallbackContext callbackContext){
+        if (bluetoothAdapter.isEnabled()) {
+            callbackContext.success();
+        } else {
+            callbackContext.error("Bluetooth is disabled.");
+        }
+    }
 
     private void listBondedDevices(CallbackContext callbackContext) throws JSONException {
         JSONArray deviceList = new JSONArray();
@@ -550,6 +582,11 @@ public class BluetoothClassicSerial extends CordovaPlugin {
         String macAddress = args.getString(0);
         JSONArray uuidJSONArray = args.getJSONArray(1);
 
+        if(!bluetoothAdapter.isEnabled()){
+            callbackContext.error("Bluetooth is disabled.");
+            return;
+        }
+
         String stringConnectUuid;
         UUID connectUuid;
         InterfaceContext interfaceContext;
@@ -562,7 +599,6 @@ public class BluetoothClassicSerial extends CordovaPlugin {
         BluetoothDevice device = bluetoothAdapter.getRemoteDevice(macAddress);
 
         if (device != null) {
-            connectCallback = callbackContext;
 
             for (int i = 0; i < uuidJSONArray.length(); i++) {
                 stringConnectUuid = uuidJSONArray.getString(i);
@@ -572,6 +608,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
 
                 if (interfaceContext == null) {
                     interfaceContext = new InterfaceContext(macAddress);
+                    interfaceContext.connectCallback = callbackContext;
                     connections.put(macAddress, interfaceContext);
                 }
 
@@ -638,20 +675,7 @@ public class BluetoothClassicSerial extends CordovaPlugin {
         }
     }
 
-    private void notifyConnectionLost(String error) {
-        if (connectCallback != null) {
-            connectCallback.error(error);
-            connectCallback = null;
-        }
-    }
 
-    private void notifyConnectionSuccess() {
-        if (connectCallback != null) {
-            PluginResult result = new PluginResult(PluginResult.Status.OK);
-            result.setKeepCallback(true);
-            connectCallback.sendPluginResult(result);
-        }
-    }
 
     private void setContextSubscribe(String macAddress, CallbackContext cc, String delimiter) {
 
