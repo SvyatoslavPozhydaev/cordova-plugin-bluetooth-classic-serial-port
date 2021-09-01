@@ -9,8 +9,8 @@
     <description>Bluetooth Serial Communication Plugin</description>
     <license>Apache 2.0</license>
     <keywords>bluetooth, serial, classic, MFi, arduino</keywords>
-    <repo>https://github.com/soltius/BluetoothClassicSerial.git</repo>
-    <issue>https://github.com/soltius/BluetoothClassicSerial/issues</issue>
+    <repo>https://github.com/MaximBelov/BluetoothClassicSerial.git</repo>
+    <issue>https://github.com/MaximBelov/BluetoothClassicSerial/issues</issue>
 
     <js-module src="www/bluetoothClassicSerial.js" name="bluetoothClassicSerial">
         <clobbers target="window.bluetoothClassicSerial" />
@@ -39,6 +39,8 @@
     </platform>
 
     <platform name="ios">
+
+        <dependency id="cordova-custom-config" />
 
         <config-file target="config.xml" parent="/widget">
             <feature name="BluetoothClassicSerial">
